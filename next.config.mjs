@@ -18,7 +18,7 @@ const nextConfig = {
           { key: "Access-Control-Allow-Credentials", value: "true" },
           {
             key: "Access-Control-Allow-Origin",
-            value: "https://shiny-ly39akmnb-pannarais-projects.vercel.app", // Set your origin
+            value: "*", // Set your origin
           },
           {
             key: "Access-Control-Allow-Methods",
