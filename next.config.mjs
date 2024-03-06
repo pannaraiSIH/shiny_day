@@ -15,9 +15,10 @@ const nextConfig = {
       {
         source: "/api/:path*",
         headers: [
+          { key: "Access-Control-Allow-Credentials", value: "true" },
           {
             key: "Access-Control-Allow-Origin",
-            value: "https://shiny-day.vercel.app", // Set your origin
+            value: "https://shiny-ly39akmnb-pannarais-projects.vercel.app", // Set your origin
           },
           {
             key: "Access-Control-Allow-Methods",
@@ -25,7 +26,8 @@ const nextConfig = {
           },
           {
             key: "Access-Control-Allow-Headers",
-            value: "Content-Type, Authorization",
+            value:
+              "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
           },
         ],
       },
