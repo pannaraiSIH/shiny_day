@@ -3,7 +3,8 @@
 import SubNavbarLink from "@/components/navigation/SubNavbarLink";
 import { useNavbarStore } from "@/stores/useNavbarStore";
 import { usePathname } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
+import Loading from "./loading";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const selectedNavbarLink = useNavbarStore(
@@ -53,8 +54,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           </SubNavbarLink>
         </nav>
       </div>
-
-      <div className='container py-16'>{children}</div>
+      <Suspense fallback={<Loading />}>
+        <div className='container py-16'>{children}</div>
+      </Suspense>
     </main>
   );
 };

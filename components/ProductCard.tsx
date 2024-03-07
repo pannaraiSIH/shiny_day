@@ -14,6 +14,8 @@ import { Separator } from "@radix-ui/react-separator";
 import { ItemInCart } from "@/interfaces/shop";
 import { toast } from "sonner";
 import { Product } from "@/interfaces/product";
+import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 interface CardProps {
   id: number;
@@ -24,7 +26,12 @@ interface CardProps {
   sold: number;
   isWishlist: boolean;
   handleCart: (item: ItemInCart) => void;
-  handleWishlist: (item: Product) => void;
+  handleAddToWishlist: (
+    id: number,
+    userId: number,
+    pathname: string,
+    controller: AbortController
+  ) => void;
 }
 
 const ProductCard = ({
@@ -36,8 +43,13 @@ const ProductCard = ({
   sold,
   isWishlist,
   handleCart,
-  handleWishlist,
+  handleAddToWishlist,
 }: CardProps) => {
+  const { data: session } = useSession();
+  const userId = session?.user.id;
+  const pathname = usePathname();
+  const controller = new AbortController();
+
   return (
     <Card key={name}>
       <CardContent className='p-6'>
@@ -46,8 +58,9 @@ const ProductCard = ({
             src={image}
             fill={true}
             style={{ objectFit: "cover" }}
-            sizes='100%'
+            sizes={"30vw"}
             alt={name}
+            className='rounded-md'
           />
         </div>
 
@@ -94,15 +107,16 @@ const ProductCard = ({
           className='w-full flex gap-2'
           variant={"outline"}
           onClick={() => {
-            handleWishlist({
-              id: id,
-              name: name,
-              price: price,
-              image: image,
-              rating: rating,
-              sold: sold,
-              isWishlist: isWishlist,
-            });
+            // handleWishlist({
+            //   id: id,
+            //   name: name,
+            //   price: price,
+            //   image: image,
+            //   rating: rating,
+            //   sold: sold,
+            //   isWishlist: isWishlist,
+            // });
+            handleAddToWishlist(id, userId, pathname, controller);
 
             toast(
               `${

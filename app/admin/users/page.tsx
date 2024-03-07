@@ -18,11 +18,6 @@ import axios from "axios";
 import NoItems from "@/components/NoItems";
 import { axiosInstance } from "@/lib/axios";
 
-const mock = [
-  { id: 1, username: "stang", role: "admin", isEdit: false },
-  { id: 2, username: "stang", role: "admin", isEdit: false },
-];
-
 interface User {
   id: number;
   username: string;
@@ -34,7 +29,6 @@ const Page = () => {
   const [users, setUsers] = useState<User[]>([]);
 
   const handleEdit = (id: number) => {
-    console.log("edit");
     let copyUsers = [...users];
     copyUsers = copyUsers.map((user) => ({ ...user, isEdit: false }));
     const foundUser = copyUsers.findIndex((user) => user.id === id);
@@ -70,9 +64,7 @@ const Page = () => {
 
   const handleSubmitEdit = async (e: React.FormEvent, user: User) => {
     e.preventDefault();
-    // let copyUsers = [...users];
-    // const foundUser = copyUsers.findIndex((user) => user.id === id);
-    console.log(user);
+
     if (!user.username || !user.role) return;
 
     const url = `/api/users/${user.id}`;

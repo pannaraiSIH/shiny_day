@@ -1,7 +1,7 @@
-// import { Product } from "@/interfaces/product";
 import { Product } from "@/interfaces/product";
 import { ItemInCart } from "@/interfaces/shop";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface Products {
   products: Product[];
@@ -18,7 +18,12 @@ export const useProductStore = create<Products>((set) => ({
   setProducts: (by: Product[]) => set((state) => ({ products: by })),
 }));
 
-export const useCartStore = create<Cart>((set) => ({
-  cart: [],
-  setCart: (by: ItemInCart[]) => set((state) => ({ cart: by })),
-}));
+export const useCartStore = create<Cart>()(
+  persist(
+    (set) => ({
+      cart: [],
+      setCart: (by: ItemInCart[]) => set((state) => ({ cart: by })),
+    }),
+    { name: "cart", partialize: (state) => ({ cart: state.cart }) }
+  )
+);

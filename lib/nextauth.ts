@@ -21,11 +21,7 @@ export const authOptions: AuthOptions = {
         });
 
         if (!user) {
-          throw new Error(
-            JSON.stringify({
-              error: "Username is invalid",
-            })
-          );
+          throw new Error(JSON.stringify({ error: "Credentials are invalid" }));
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -38,7 +34,7 @@ export const authOptions: AuthOptions = {
         if (isPasswordCorrect) {
           throw new Error(
             JSON.stringify({
-              error: "Password is invalid",
+              error: "Credentials are invalid",
             })
           );
         }
@@ -53,6 +49,7 @@ export const authOptions: AuthOptions = {
   ],
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
   session: {

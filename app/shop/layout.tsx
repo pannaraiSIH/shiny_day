@@ -2,8 +2,9 @@
 
 import SubNavbarLink from "@/components/navigation/SubNavbarLink";
 import { useNavbarStore } from "@/stores/useNavbarStore";
+import Loading from "./loading";
 
-import React, { useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const selectedNavbarLink = useNavbarStore(
@@ -54,9 +55,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       <div className='container py-16'>
-        <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-4'>
-          {children}
-        </div>
+        <Suspense fallback={<Loading />}>
+          <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-4'>
+            {children}
+          </div>
+        </Suspense>
       </div>
     </main>
   );

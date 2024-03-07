@@ -55,6 +55,7 @@ const Navbar = () => {
   const { data: session } = useSession();
   const username = session?.user.name;
   const role = session?.user.role;
+  // console.log(session);
 
   const handleSelectNavbarLink = (link: string) => {
     setSelectedPrimaryNavbarLink(link.toLocaleLowerCase());

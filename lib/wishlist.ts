@@ -1,4 +1,7 @@
+"use client";
+
 import { Product } from "@/interfaces/product";
+import { axiosInstance } from "./axios";
 
 interface HandleWishlistProps {
   item: Product;
@@ -8,38 +11,20 @@ interface HandleWishlistProps {
   setWishlist: (item: Product[]) => void;
 }
 
-export const handleAddToWishlist = ({
-  item,
-  products,
-  wishlist,
-  setProducts,
-  setWishlist,
-}: HandleWishlistProps) => {
-  let copyProducts = [...products];
-  const foundProductItem = products.findIndex(
-    (itemInProducts: Product) => itemInProducts.id === item.id
-  );
-  copyProducts[foundProductItem].isWishlist =
-    !copyProducts[foundProductItem].isWishlist;
-  setProducts([...copyProducts]);
+export const handleAddToWishlist = async (id: number, userId: number) => {
+  const url = `/api/wishlist?userId=${userId}&productId=${id}`;
+  const response = await axiosInstance.get(url);
 
-  if (wishlist.length === 0) {
-    item.isWishlist = true;
-    setWishlist([...wishlist, item]);
-  } else {
-    const foundItem = wishlist.findIndex(
-      (itemInWishlist: Product) => itemInWishlist.id === item.id
-    );
+  if (response && response.status === 200 && response.data) {
+    const foundWishlist = response.data.wishlist;
 
-    if (foundItem === -1) {
-      item.isWishlist = true;
-      setWishlist([...wishlist, item]);
+    if (foundWishlist.length === 0) {
+      const url = "/api/wishlist";
+      const body = { productId: id, userId };
+      const createWishlist = await axiosInstance.post(url, body);
     } else {
-      let copyWishlist = [...wishlist];
-      copyWishlist = copyWishlist.filter(
-        (itemInWishlist) => itemInWishlist.id !== item.id
-      );
-      setWishlist(copyWishlist);
+      const url = `/api/wishlist/${foundWishlist[0].id}`;
+      const deleteWishlistItem = await axiosInstance.delete(url);
     }
   }
 };

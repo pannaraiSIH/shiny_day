@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -21,33 +21,60 @@ import { Product } from "@/interfaces/product";
 import { useCartStore, useProductStore } from "@/stores/useShopStore";
 import { handleAddToCart } from "@/lib/cart";
 import { ItemInCart } from "@/interfaces/shop";
+import { axiosInstance } from "@/lib/axios";
 
 const Page = () => {
   const wishlist = useWishlistStore((state) => state.wishlist);
   const setWishlist = useWishlistStore((state) => state.setWishlist);
-  const products = useProductStore((state) => state.products);
-  const setProducts = useProductStore((state) => state.setProducts);
   const cart = useCartStore((state) => state.cart);
   const setCart = useCartStore((state) => state.setCart);
+
+  const fetchData = useCallback(async () => {
+    setWishlist([]);
+
+    try {
+      const url = "/api/wishlist";
+      const response = await axiosInstance.get(url);
+
+      if (response && response.status === 200 && response.data) {
+        const data = response.data.wishlist.map((item: any) => {
+          return {
+            id: item.id,
+            userId: item.user_id,
+            productId: item.product_id,
+            product: item.products,
+            createdAt: item.created_at,
+          };
+        });
+        setWishlist(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, [setWishlist]);
 
   const handleCart = (item: ItemInCart) => {
     handleAddToCart({ item, cart, setCart });
   };
 
-  const handleDeleteWishlistItem = (item: Product) => {
-    let copyWishlist = [...wishlist];
-    copyWishlist = copyWishlist.filter(
-      (itemInWishlist) => itemInWishlist.id !== item.id
-    );
-    let copyProducts = [...products];
-    const foundItemInProducts = copyProducts.findIndex(
-      (itemInProducts) => itemInProducts.id === item.id
-    );
-    copyProducts[foundItemInProducts].isWishlist = false;
+  const handleDeleteWishlistItem = async (id: number) => {
+    try {
+      const url = `/api/wishlist/${id}`;
+      const response = await axiosInstance.delete(url);
 
-    setWishlist(copyWishlist);
-    setProducts(copyProducts);
+      if (response && response.status === 200) {
+        await fetchData();
+      }
+    } catch (error) {}
   };
+
+  useEffect(() => {
+    async function getData() {
+      await fetchData();
+    }
+
+    getData();
+  }, [setWishlist, fetchData]);
 
   return (
     <main className='flex-1 mt-[4.5rem]'>
@@ -62,41 +89,43 @@ const Page = () => {
         ) : (
           <ul className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
             {wishlist.map((item) => (
-              <li key={item.name} className='group'>
-                <Card className='relative overflow-hidden transition-all hover:bg-muted'>
+              <li key={item.product.name} className='group h-full'>
+                <Card className='relative overflow-hidden transition-all h-full hover:bg-muted'>
                   <CardContent className='p-6'>
                     <div className='relative w-100 aspect-square mb-4'>
                       <Image
-                        src={item.image}
-                        alt={item.name}
+                        src={item.product.image}
+                        alt={item.product.name}
                         fill={true}
-                        style={{ objectFit: "contain" }}
-                        sizes='100%'
+                        style={{ objectFit: "cover" }}
+                        sizes={"30vw"}
                       />
                     </div>
-                    <p className='text-md uppercase text-center'>{item.name}</p>
+                    <p className='text-md uppercase text-center'>
+                      {item.product.name}
+                    </p>
                   </CardContent>
-                  <CardFooter className='bg-white pt-6 border-t  h-0 opacity-0 absolute w-full bottom-0 left-[50%] translate-x-[-50%] space-x-2 transition-all group-hover:opacity-100 group-hover:h-[7rem]'>
+                  <CardFooter className='flex flex-col justify-center gap-2 bg-white pt-6 border-t min-h-[8rem]  h-0 opacity-0 absolute w-full bottom-0 left-[50%] translate-x-[-50%]  transition-all group-hover:opacity-100 group-hover:h-[7rem]'>
                     <Button
                       className='flex items-center gap-1 w-full'
                       variant={"destructive"}
                       onClick={() => {
-                        handleDeleteWishlistItem(item);
+                        handleDeleteWishlistItem(item.id);
 
                         toast("Wishlist item has been removed", {});
                       }}
                     >
                       <Trash2 />
-                      Delete
+                      Remove
                     </Button>
                     <Button
                       className='flex items-center gap-1 w-full'
                       onClick={() => {
                         handleCart({
                           id: item.id,
-                          name: item.name,
-                          price: item.price,
-                          image: item.image,
+                          name: item.product.name,
+                          price: item.product.price,
+                          image: item.product.image,
                           amount: 1,
                         });
 

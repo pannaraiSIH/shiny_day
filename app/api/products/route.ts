@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import bcrypt from "bcrypt";
-import { useSearchParams } from "next/navigation";
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,6 +9,7 @@ export async function GET(req: NextRequest) {
     const products = await prisma.products.findMany({
       where: { category: Number(category) || undefined },
       include: {
+        wishlist: true,
         _count: {
           select: {
             order_histories: true,
@@ -23,9 +22,12 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.log(error);
     if (error instanceof PrismaClientKnownRequestError)
-      return NextResponse.json({ message: error.message });
+      return NextResponse.json({ message: error.message }, { status: 500 });
 
-    return NextResponse.json({ message: (error as Error).message });
+    return NextResponse.json(
+      { message: (error as Error).message },
+      { status: 500 }
+    );
   }
 }
 

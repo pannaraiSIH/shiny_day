@@ -75,7 +75,16 @@ const columns: ColumnDef<ItemInCart>[] = [
       const image = data.image as string;
       return (
         <div className='flex gap-2 items-center capitalize'>
-          <Image src={image} alt={name} width={60} height={60} />
+          <div className='relative w-[4.5rem] aspect-square mr-2'>
+            <Image
+              src={image}
+              alt={name}
+              fill={true}
+              style={{ objectFit: "cover" }}
+              sizes={"30vw"}
+              className='rounded-md'
+            />
+          </div>
           <p>{name}</p>
         </div>
       );
@@ -239,8 +248,12 @@ const Page = () => {
       const url = "/api/histories";
       const response = await axiosInstance.post(url, { reviews });
 
-      if (response && response.status === 201) router.push("/");
+      if (response && response.status === 201) {
+        setCart([]);
+        router.push("/");
+      }
     } catch (error) {
+      setCart([]);
       console.log(error);
     }
   };
@@ -408,13 +421,13 @@ const Page = () => {
                       </AlertDialogHeader>
                     ) : (
                       <form onSubmit={handleSubmitReview}>
-                        <ScrollArea className='max-h-[20rem]'>
-                          <AlertDialogTitle className='text-center mb-4'>
-                            Rating
-                          </AlertDialogTitle>
+                        <AlertDialogTitle className='text-center mb-4'>
+                          Rating
+                        </AlertDialogTitle>
 
+                        <ScrollArea className='max-h-[20rem] h-full'>
                           {cart.map((item, index) => (
-                            <div key={item.id}>
+                            <div key={item.id} className='px-4'>
                               <div className='flex flex-col gap-2 basis-1/1 w-full'>
                                 <div className='flex items-center'>
                                   <div className='relative w-[4.5rem] aspect-square mr-2'>
@@ -422,8 +435,8 @@ const Page = () => {
                                       src={item.image}
                                       alt={item.name}
                                       fill={true}
-                                      style={{ objectFit: "contain" }}
-                                      sizes='100%'
+                                      style={{ objectFit: "cover" }}
+                                      sizes={"30vw"}
                                       className='rounded-md'
                                     />
                                   </div>
@@ -479,21 +492,25 @@ const Page = () => {
                               )}
                             </div>
                           ))}
-                        </ScrollArea>
 
-                        <div className='flex ml-auto gap-2 mt-4'>
-                          <AlertDialogCancel>
-                            <Link href={"/"}>Cancel</Link>
-                          </AlertDialogCancel>
-                          <Button type='submit'>Submit</Button>
-                        </div>
+                          <div className='flex justify-end ml-auto gap-2 mt-4 px-4'>
+                            <AlertDialogCancel>
+                              <Link href={"/"} onClick={() => setCart([])}>
+                                Cancel
+                              </Link>
+                            </AlertDialogCancel>
+                            <Button type='submit'>Submit</Button>
+                          </div>
+                        </ScrollArea>
                       </form>
                     )}
 
                     {!showReview && (
                       <AlertDialogFooter>
                         <AlertDialogCancel>
-                          <Link href={"/"}>Continue</Link>
+                          <Link href={"/"} onClick={() => setCart([])}>
+                            Continue
+                          </Link>
                         </AlertDialogCancel>
                         <Button onClick={() => setShowReview(true)}>
                           Review

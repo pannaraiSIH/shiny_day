@@ -38,6 +38,7 @@ import NoItems from "@/components/NoItems";
 import { axiosInstance } from "@/lib/axios";
 import { useAlertStore } from "@/stores/useAlertStore";
 import { PutBlobResult } from "@vercel/blob";
+import Spinner from "@/components/Spinner";
 
 interface Product {
   id: number;
@@ -90,6 +91,7 @@ const Page = () => {
     image: null,
   });
   const [warningText, setWarningText] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEdit = (id: number) => {
     let copyProducts = [...products];
@@ -178,6 +180,9 @@ const Page = () => {
     const { name, price, category } = newProduct;
     if (!file || !name || !price || !category) return;
 
+    setIsLoading(true);
+    setOpenDialog(false);
+
     try {
       const uploadUrl = "/api/upload";
       const response = await axiosInstance.post(uploadUrl, file, {
@@ -195,23 +200,22 @@ const Page = () => {
         if (newProductResponse && newProductResponse.status === 201) {
           const getProductsResponse = await axiosInstance.get(url);
 
-          if (
-            getProductsResponse &&
-            getProductsResponse.status === 200 &&
-            getProductsResponse.data
-          ) {
+          if (getProductsResponse && getProductsResponse.status === 200) {
             const data = response.data.products.map((product: any) => ({
               ...product,
               isEdit: false,
             }));
+
+            setIsLoading(false);
+
             setProducts(data);
           }
         }
       }
     } catch (error) {
       console.log(error);
-    } finally {
-      setOpenDialog(false);
+
+      setIsLoading(false);
       setNewProduct({
         name: "",
         price: 0,
@@ -224,6 +228,8 @@ const Page = () => {
 
   useEffect(() => {
     async function fetchData() {
+      setIsLoading(true);
+      setProducts([]);
       try {
         const url = "/api/products";
         const response = await axiosInstance.get(url);
@@ -234,11 +240,12 @@ const Page = () => {
             isEdit: false,
           }));
 
+          setIsLoading(false);
           setProducts(data);
-          setOpenDialog(false);
         }
       } catch (error) {
         console.log(error);
+        setIsLoading(false);
       }
     }
 
@@ -386,7 +393,7 @@ const Page = () => {
                           alt={product.name}
                           fill={true}
                           style={{ objectFit: "cover" }}
-                          sizes='100%'
+                          sizes={"30vw"}
                         />
                       </div>
                       <div className=''>

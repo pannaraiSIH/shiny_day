@@ -25,9 +25,10 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Logo from "@/components/Logo";
 import { signIn, useSession } from "next-auth/react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { axiosInstance } from "@/lib/axios";
+import { useAlertStore } from "@/stores/useAlertStore";
 
 const formSchema = z.object({
   username: z
@@ -48,18 +49,49 @@ const Page = () => {
       password: "",
     },
   });
+  const setShowAlert = useAlertStore((state) => state.setShowAlert);
+  const setAlertDetails = useAlertStore((state) => state.setAlertDetails);
   const { data: session } = useSession();
   const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(isSignIn);
     if (!isSignIn) {
-      const response = await signIn("credentials", {
-        username: values.username,
-        password: values.password,
-        callbackUrl: "/",
-        // redirect: false,
-      });
+      try {
+        const response = await signIn("credentials", {
+          username: values.username,
+          password: values.password,
+          // callbackUrl: "/",
+          redirect: false,
+        });
+
+        if (response && response.ok) {
+          setTimeout(() => router.push("/"), 4000);
+
+          setAlertDetails({
+            title: "Login successful",
+            description: null,
+            style: "default",
+          });
+        } else {
+          const error = JSON.parse(response?.error || "");
+
+          setAlertDetails({
+            title: "Unauthorized",
+            description: error.error,
+            style: "destructive",
+          });
+        }
+      } catch (error) {
+        // console.log(error);
+
+        setAlertDetails({
+          title: "Failed to login",
+          description: null,
+          style: "destructive",
+        });
+      } finally {
+        setShowAlert(true);
+      }
     } else {
       const url = "/api/users";
       const response = await axiosInstance.post(url, values);
@@ -131,7 +163,7 @@ const Page = () => {
             <Button
               variant={"link"}
               className='capitalize'
-              onClick={() => setIsSignIn((prev) => !prev)}
+              // onClick={() => setIsSignIn((prev) => !prev)}
             >
               {isSignIn ? "Sign in" : "Sign up"}
             </Button>

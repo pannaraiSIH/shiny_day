@@ -39,8 +39,11 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.log(error);
     if (error instanceof PrismaClientKnownRequestError)
-      return NextResponse.json({ message: error.message });
+      return NextResponse.json({ message: error.message }, { status: 500 });
 
-    return NextResponse.json({ message: (error as Error).message });
+    return NextResponse.json(
+      { message: (error as Error).message },
+      { status: 500 }
+    );
   }
 }

@@ -6,7 +6,6 @@ import Navbar from "@/components/navigation/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import SessionProvider from "@/components/SessionProvider";
 import { getServerSession } from "next-auth";
-
 import AlertBox from "@/components/AlertBox";
 import { authOptions } from "@/lib/nextauth";
 

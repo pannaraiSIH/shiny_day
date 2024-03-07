@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 interface AlertDetails {
   title: string;
-  description?: string;
+  description: string | null;
   style: "default" | "destructive";
 }
 
