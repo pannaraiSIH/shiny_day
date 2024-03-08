@@ -42,11 +42,12 @@ const formSchema = z.object({
 
 const Page = () => {
   const [isSignIn, setIsSignIn] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
-      password: "",
+      username: "test_user",
+      password: "testuser",
     },
   });
   const setShowAlert = useAlertStore((state) => state.setShowAlert);
@@ -56,6 +57,8 @@ const Page = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!isSignIn) {
+      setIsLogin(true);
+
       try {
         const response = await signIn("credentials", {
           username: values.username,
@@ -91,6 +94,7 @@ const Page = () => {
         });
       } finally {
         setShowAlert(true);
+        setIsLogin(false);
       }
     } else {
       const url = "/api/users";
@@ -152,7 +156,7 @@ const Page = () => {
                     </FormItem>
                   )}
                 />
-                <Button type='submit' className='w-full'>
+                <Button type='submit' className='w-full' disabled={isLogin}>
                   Submit
                 </Button>
               </form>

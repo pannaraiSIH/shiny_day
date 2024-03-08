@@ -18,8 +18,21 @@ export default function Home() {
   return (
     <main>
       <section className='h-screen relative'>
+        <div className='absolute top-[20%] left-[12%] right-[12%] z-10 lg:left-[10%] lg:top-[35%]'>
+          <div className='mx-10 md:mx-24 lg:max-w-[20rem] lg:mx-0 xl:max-w-[30rem]'>
+            <p className='uppercase text-center font-semibold text-xl leading-relaxed md:text-2xl lg:text-left md:mb-4 lg:text-3xl xl:text-4xl '>
+              Discover Your Radiant Glow with Shiny Day
+            </p>
+          </div>
+          <div className='hidden lg:block'>
+            <p className='max-w-[25rem] text-md xl:text-xl text-wrap'>
+              Your Ultimate Destination for Skin Care Essentials!
+            </p>
+          </div>
+        </div>
+
         <Image
-          src='/pexels-karolina-grabowska-4210373.jpg'
+          src='/pexels-cup-of-couple-8015488.jpg'
           alt='hero_image'
           fill={true}
           style={{ objectFit: "cover" }}
