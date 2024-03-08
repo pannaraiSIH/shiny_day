@@ -4,8 +4,19 @@ import CategoryCard from "@/components/CategoryCard";
 import Reviews from "@/components/Reviews";
 import { Globe2, LeafyGreen, Star, Terminal, ThumbsUp } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AlertBox from "@/components/AlertBox";
+import { axiosInstance } from "@/lib/axios";
+import HeaderText from "@/components/HeaderText";
+import { useLoadingStore } from "@/stores/useLoadingStore";
+
+interface ReviewProps {
+  id: number;
+  username: string;
+  product: { image: string };
+  review: string;
+  rating: number;
+}
 
 const shinyDayFeatures = [
   { label: "Inclusive formulations", icon: <Star /> },
@@ -15,6 +26,56 @@ const shinyDayFeatures = [
 ];
 
 export default function Home() {
+  const [reviews, setReviews] = useState<ReviewProps[]>([]);
+  const isLoading = useLoadingStore((state) => state.isLoading);
+  const setIsLoading = useLoadingStore((state) => state.setIsLoading);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    async function fetchData() {
+      try {
+        const url = "/api/reviews";
+        const response = await axiosInstance.get(url, {
+          signal: controller.signal,
+        });
+        if (response && response.status === 200 && response.data) {
+          const data = response.data.histories.map((item: any) => {
+            const username = item.users.username;
+            const firstChar = username.substring(0, 3);
+            const lastChar = username[username.length - 1];
+            const anonymous =
+              username.length > 2
+                ? `${firstChar}${"*".repeat(username.length - 4)}${lastChar}`
+                : username;
+
+            return {
+              id: item.id,
+              username: anonymous,
+              product: item.products,
+              review: item.review,
+              rating: item.rating,
+            };
+          });
+
+          setReviews(data);
+        }
+      } catch (error) {
+        if (
+          (error instanceof Error && error.name === "AbortError") ||
+          (error instanceof Error && error.name === "CanceledError")
+        ) {
+          console.log("Request aborted");
+        } else {
+          console.log(error);
+        }
+      }
+    }
+
+    fetchData();
+
+    return () => controller.abort();
+  }, []);
+
   return (
     <main>
       <section className='h-screen relative'>
@@ -77,7 +138,13 @@ export default function Home() {
         </div>
       </section>
 
-      <Reviews />
+      <div className='bg-muted py-20'>
+        <div className='container'>
+          <HeaderText>Reviews</HeaderText>
+
+          <Reviews reviews={reviews} />
+        </div>
+      </div>
     </main>
   );
 }

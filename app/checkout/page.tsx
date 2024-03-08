@@ -56,6 +56,9 @@ import { axiosInstance } from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useAlertStore } from "@/stores/useAlertStore";
+import { useLoadingStore } from "@/stores/useLoadingStore";
+import ThankYouCard from "@/components/ThankYouCard";
+import { AxiosError } from "axios";
 
 interface Review {
   review: string;
@@ -151,10 +154,12 @@ const Page = () => {
   const setShowAlert = useAlertStore((state) => state.setShowAlert);
   const setAlertDetails = useAlertStore((state) => state.setAlertDetails);
   const [showDialog, setShowDialog] = useState(false);
-
-  const data = cart;
+  const isLoading = useLoadingStore((state) => state.isLoading);
+  const setIsLoading = useLoadingStore((state) => state.setIsLoading);
+  const [isSubmitReview, setIsSubmitReview] = useState(false);
   const { data: session } = useSession();
   const router = useRouter();
+  const data = cart;
 
   const table = useReactTable({
     data,
@@ -235,26 +240,40 @@ const Page = () => {
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const empty = reviews.findIndex(
+    if (reviews.length === 0) return;
+
+    const allReviews = reviews.findIndex(
       (review) =>
         !review.rating ||
         !review.review ||
         !review.product_id ||
         review.amount === 0
     );
-    if (empty !== -1) return;
 
+    if (allReviews !== -1) return;
+
+    setIsLoading(true);
     try {
       const url = "/api/histories";
+
       const response = await axiosInstance.post(url, { reviews });
 
-      if (response && response.status === 201) {
-        setCart([]);
-        router.push("/");
-      }
+      if (response && response.status === 201) setIsSubmitReview(true);
     } catch (error) {
-      setCart([]);
       console.log(error);
+
+      if (error instanceof AxiosError) {
+        setShowAlert(true);
+        setAlertDetails({
+          title: "Failed to reviews, please try again later.",
+          description: "",
+          style: "destructive",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => router.push("/"), 5000);
+      setTimeout(() => setCart([]), 5000);
     }
   };
 
@@ -394,31 +413,15 @@ const Page = () => {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     {!showReview ? (
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className='text-center uppercase'>
-                          <div className='flex justify-center mb-4'>
-                            <svg
-                              xmlns='http://www.w3.org/2000/svg'
-                              width='100'
-                              height='100'
-                              viewBox='0 0 24 24'
-                              fill='none'
-                              stroke='currentColor'
-                              strokeWidth='1'
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              className='lucide lucide-badge-check'
-                            >
-                              <path d='M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z' />
-                              <path d='m9 12 2 2 4-4' />
-                            </svg>
-                          </div>
-                          Thank you for the purchase!
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className='text-center'>
-                          The order will be shipped within two days.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
+                      <ThankYouCard
+                        title='Thank you for the purchase!'
+                        description='The orders will be shipped with in two days.'
+                      />
+                    ) : isSubmitReview ? (
+                      <ThankYouCard
+                        title='Thank you for the reviews!'
+                        description="We appreciate your feedback. If you have any further questions or concerns, please don't hesitate to reach out to us. Thank you for choosing Shiny Day."
+                      />
                     ) : (
                       <form onSubmit={handleSubmitReview}>
                         <AlertDialogTitle className='text-center mb-4'>
@@ -458,7 +461,7 @@ const Page = () => {
                                         }`}
                                         className={`cursor-pointer ${
                                           index + 1 <= temporaryRating
-                                            ? "text-yellow-300"
+                                            ? "text-yellow-500"
                                             : ""
                                         }`}
                                         onMouseEnter={() =>
@@ -499,7 +502,13 @@ const Page = () => {
                                 Cancel
                               </Link>
                             </AlertDialogCancel>
-                            <Button type='submit'>Submit</Button>
+                            <Button
+                              type='submit'
+                              disabled={isLoading}
+                              // onClick={() => setIsSubmitReview(true)}
+                            >
+                              Submit
+                            </Button>
                           </div>
                         </ScrollArea>
                       </form>

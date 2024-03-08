@@ -31,7 +31,7 @@ const AlertBox = () => {
       {showAlert && (
         <Alert
           variant={alertDetails.style}
-          className='fixed top-10 right-[5rem] z-40 w-[25rem] bg-white'
+          className='fixed top-10 right-[5rem] z-50 w-[25rem] bg-white'
         >
           <Terminal className='h-4 w-4' />
           <AlertTitle>{alertDetails.title}</AlertTitle>

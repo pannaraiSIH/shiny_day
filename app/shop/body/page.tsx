@@ -12,7 +12,6 @@ import { handleAddToWishlist } from "@/lib/wishlist";
 import { fetchProducts } from "@/lib/product";
 import { useLoadingStore } from "@/stores/useLoadingStore";
 import Loading from "../loading";
-import { AxiosError } from "axios";
 
 const Page = () => {
   const cart = useCartStore((state) => state.cart);

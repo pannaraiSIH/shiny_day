@@ -10,15 +10,44 @@ export async function GET(req: NextRequest) {
       where: { category: Number(category) || undefined },
       include: {
         wishlist: true,
-        _count: {
+        order_histories: {
           select: {
-            order_histories: true,
+            id: true,
+            review: true,
+            amount: true,
+            rating: true,
           },
         },
       },
     });
 
-    return NextResponse.json({ message: "success", products: products });
+    const data = products.map((product) => {
+      const sold = product.order_histories.reduce((acc: any, curr: any) => {
+        return acc + curr.amount;
+      }, 0);
+
+      const totalScore = product.order_histories.reduce(
+        (acc: any, curr: any) => {
+          return acc + curr.amount * curr.rating;
+        },
+        0
+      );
+
+      const rating = (totalScore / sold).toFixed(1);
+
+      return {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+        sold: sold,
+        rating: rating || 0,
+        isWishlist: product.wishlist ? true : false,
+      };
+    });
+
+    return NextResponse.json({ message: "success", products: data });
   } catch (error) {
     console.log(error);
     if (error instanceof PrismaClientKnownRequestError)

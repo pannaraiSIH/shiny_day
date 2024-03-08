@@ -80,7 +80,7 @@ const ProductCard = ({
                 {Array.from({ length: rating }, (_, index) => (
                   <Star
                     key={index}
-                    className='text-yellow-500 '
+                    className='text-yellow-500'
                     fill='yellow'
                     size={18}
                   />
@@ -107,15 +107,6 @@ const ProductCard = ({
           className='w-full flex gap-2'
           variant={"outline"}
           onClick={() => {
-            // handleWishlist({
-            //   id: id,
-            //   name: name,
-            //   price: price,
-            //   image: image,
-            //   rating: rating,
-            //   sold: sold,
-            //   isWishlist: isWishlist,
-            // });
             handleAddToWishlist(id, userId, pathname, controller);
 
             toast(
@@ -123,10 +114,7 @@ const ProductCard = ({
                 isWishlist
                   ? `${name.toUpperCase()} has been removed from your wishlist.`
                   : `${name.toUpperCase()} has been added to your wishlist.`
-              }`,
-              {
-                // description: "Sunday, December 03, 2023 at 9:00 AM",
-              }
+              }`
             );
           }}
         >
@@ -147,9 +135,7 @@ const ProductCard = ({
               amount: 0,
             });
 
-            toast(`${name.toUpperCase()} has been added to your cart.`, {
-              // description: "Sunday, December 03, 2023 at 9:00 AM",
-            });
+            toast(`${name.toUpperCase()} has been added to your cart.`);
           }}
         >
           <ShoppingCart />

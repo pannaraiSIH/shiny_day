@@ -24,18 +24,7 @@ export const fetchProducts = async ({
   });
 
   if (response && response.status === 200 && response.data) {
-    data = response.data.products.map((product: any) => {
-      return {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        category: product.category,
-        sold: product._count.order_histories,
-        rating: product.rating,
-        isWishlist: product.wishlist ? true : false,
-      };
-    });
+    data = response.data.products;
   }
 
   return data;
