@@ -118,8 +118,8 @@ export default function Home() {
             {shinyDayFeatures.map((item, index) => (
               <li
                 key={item.label}
-                className={`mx-8 space-y-2 flex flex-col w-fit items-center text-center ${
-                  index % 2 !== 0 ? "justify-self-end" : ""
+                className={`w-full h-full self-center space-y-2 text-center md:w-fit md:h-fit md:mx-8 md:flex md:flex-col md:items-center  ${
+                  index % 2 !== 0 ? "md:justify-self-end" : ""
                 }`}
               >
                 <div className='flex flex-col items-center gap-1'>
@@ -138,13 +138,13 @@ export default function Home() {
         </div>
       </section>
 
-      <div className='bg-muted py-20'>
+      <section className='bg-muted py-20'>
         <div className='container'>
           <HeaderText>Reviews</HeaderText>
 
           <Reviews reviews={reviews} />
         </div>
-      </div>
+      </section>
     </main>
   );
 }

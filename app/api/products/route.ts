@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
         0
       );
 
-      const rating = (totalScore / sold).toFixed(1);
+      const rating = totalScore ? (totalScore / sold).toFixed(1) : 0;
 
       return {
         id: product.id,

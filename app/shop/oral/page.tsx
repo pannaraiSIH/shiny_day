@@ -11,6 +11,7 @@ import NoItems from "@/components/NoItems";
 import { fetchProducts } from "@/lib/product";
 import { useLoadingStore } from "@/stores/useLoadingStore";
 import Loading from "../loading";
+import { useNavbarStore } from "@/stores/useNavbarStore";
 
 const Page = () => {
   const cart = useCartStore((state) => state.cart);
@@ -19,7 +20,12 @@ const Page = () => {
   const setProducts = useProductStore((state) => state.setProducts);
   const isLoading = useLoadingStore((state) => state.isLoading);
   const setIsLoading = useLoadingStore((state) => state.setIsLoading);
+  const setSelectedNavbarLink = useNavbarStore(
+    (state) => state.setSelectedNavbarLink
+  );
   const pathname = usePathname();
+  const activeLink = pathname.split("/")[2];
+  // console.log(activeLink);
 
   const handleCart = (item: ItemInCart) => {
     handleAddToCart({ item, cart, setCart });
@@ -27,6 +33,7 @@ const Page = () => {
 
   useEffect(() => {
     const controller = new AbortController();
+    // setSelectedNavbarLink(activeLink);
 
     async function getData() {
       setIsLoading(true);
@@ -52,7 +59,7 @@ const Page = () => {
     getData();
 
     return () => controller.abort();
-  }, [pathname, setProducts, setIsLoading]);
+  }, [pathname, activeLink, setSelectedNavbarLink, setProducts, setIsLoading]);
 
   return (
     <>

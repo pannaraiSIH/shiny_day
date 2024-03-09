@@ -5,6 +5,7 @@ import { useNavbarStore } from "@/stores/useNavbarStore";
 import Loading from "./loading";
 
 import React, { Suspense, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const selectedNavbarLink = useNavbarStore(
@@ -13,6 +14,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const setSelectedNavbarLink = useNavbarStore(
     (state) => state.setSelectedNavbarLink
   );
+  const pathname = usePathname();
 
   const handleSelectSubNavbar = (path: string) => {
     setSelectedNavbarLink(path);
@@ -20,11 +22,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     function activeNavbarLink() {
-      setSelectedNavbarLink("/shop/body");
+      setSelectedNavbarLink(pathname);
     }
 
     activeNavbarLink();
-  }, [setSelectedNavbarLink]);
+  }, [pathname, setSelectedNavbarLink]);
 
   return (
     <main className='flex-1 pt-[4.5rem]'>

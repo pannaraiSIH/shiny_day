@@ -75,7 +75,9 @@ const Reviews = ({ reviews }: ReviewProps) => {
 
                     <div className='w-full'>
                       <p className='text-md uppercase mb-2'>{item.username}</p>
-                      <p className='text-sm capitalize'>{item.review}</p>
+                      <p className='text-sm first-letter:uppercase'>
+                        {item.review}
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
