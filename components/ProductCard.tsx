@@ -59,6 +59,7 @@ const ProductCard = ({
             fill={true}
             style={{ objectFit: "cover" }}
             sizes={"30vw"}
+            quality={80}
             alt={name}
             className='rounded-md'
           />

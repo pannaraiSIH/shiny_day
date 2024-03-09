@@ -22,15 +22,20 @@ import { useCartStore, useProductStore } from "@/stores/useShopStore";
 import { handleAddToCart } from "@/lib/cart";
 import { ItemInCart } from "@/interfaces/shop";
 import { axiosInstance } from "@/lib/axios";
+import { useLoadingStore } from "@/stores/useLoadingStore";
+import Loading from "../loading";
 
 const Page = () => {
   const wishlist = useWishlistStore((state) => state.wishlist);
   const setWishlist = useWishlistStore((state) => state.setWishlist);
   const cart = useCartStore((state) => state.cart);
   const setCart = useCartStore((state) => state.setCart);
+  const isLoading = useLoadingStore((state) => state.isLoading);
+  const setIsLoading = useLoadingStore((state) => state.setIsLoading);
 
   const fetchData = useCallback(async () => {
     setWishlist([]);
+    setIsLoading(true);
 
     try {
       const url = "/api/wishlist";
@@ -50,8 +55,10 @@ const Page = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [setWishlist]);
+  }, [setWishlist, setIsLoading]);
 
   const handleCart = (item: ItemInCart) => {
     handleAddToCart({ item, cart, setCart });
@@ -83,22 +90,25 @@ const Page = () => {
           Wishlist {wishlist.length !== 0 && `(${wishlist.length})`}
         </HeaderText>
         <Separator className='my-8' />
-
-        {wishlist.length === 0 ? (
+        {isLoading ? (
+          <Loading />
+        ) : wishlist.length === 0 ? (
           <NoItems />
         ) : (
           <ul className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
             {wishlist.map((item) => (
               <li key={item.product.name} className='group h-full'>
                 <Card className='relative overflow-hidden transition-all h-full hover:bg-muted'>
-                  <CardContent className='p-6'>
+                  <CardContent className='p-6 h-full'>
                     <div className='relative w-100 aspect-square mb-4'>
                       <Image
                         src={item.product.image}
                         alt={item.product.name}
                         fill={true}
                         style={{ objectFit: "cover" }}
-                        sizes={"30vw"}
+                        sizes='33vw'
+                        quality={80}
+                        className='rounded-md'
                       />
                     </div>
                     <p className='text-md uppercase text-center'>
